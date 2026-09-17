@@ -8,7 +8,7 @@
 - 语义感知文本分块（smart_chunker，按段落→句子逐级切分）
 - 文本向量化（智谱 embedding-3，1024 维）
 - 向量检索（ChromaDB 本地库，余弦相似度 Top-K）
-- 多文档批量入库（支持 article1~3.txt 等多篇文档）
+- 多文档批量入库（自动扫描 rag/ 目录下所有 .txt 文件并入库）
 - BM25 + 向量混合检索（加权融合，rank_bm25）
 - 交互式问答（rag_pipeline.py 终端连续对话）
 
@@ -30,8 +30,10 @@ rag/
 ├── ragexp_chunk_size.py   # 实验：chunk_size 调参（非核心）
 ├── ragexp_overlap.py      # 实验：overlap 调参（非核心）
 ├── raghybrid_search.py    # 实验：BM25+向量混合检索（非核心）
-├── sample.txt          # 测试文档
-└── article1~3.txt      # 多文档测试素材
+├── sample.txt          # 测试文档（入库时会被自动扫描）
+├── article1.txt        # 测试文档（入库时会被自动扫描）
+├── article2.txt        # 测试文档（入库时会被自动扫描）
+└── article3.txt        # 测试文档（入库时会被自动扫描）
 
 ## 快速开始
 
@@ -52,16 +54,18 @@ pip install -r requirements.txt
 ZHIPUAI_API_KEY=你的key
 
 ### 5. 文档入库（首次运行需执行）
-python ragmuti_doc_ingest.py
+python rag/muti_doc_ingest.py
+入库脚本会自动扫描 rag/ 目录下所有 .txt 文件，无需手动指定文件名。
+如需新增文档，将 .txt 文件放入 rag/ 目录后重新运行此命令即可。
 
 ### 6. 启动问答
-python ragrag_pipeline.py
+python rag/rag_pipeline.py
 然后在终端输入问题，输入 quit 退出。
 
 ## 说明
 - chorma_db/ 为本地向量库，不纳入版本管理，clone 后运行入库脚本会自动重建。
 - rag/ 下 exp / hybrid 结尾的脚本（ragexp_chunk_size.py、ragexp_overlap.py、
   raghybrid_search.py）为 Day 37 调参 / 混合检索实验脚本，保留在原位、非核心功能，
-  运行方式同样是 `python rag脚本名.py`，同样需在项目根目录执行。
+  运行方式同样是 `python rag/脚本名.py`，同样需在项目根目录执行。
 - 所有脚本内部通过 sys.path 把项目根目录加入了模块搜索路径，
   请统一在项目根目录（MY_AGENT 下）运行，不要 cd 进 rag/ 再运行，否则 import 会失败。

@@ -3,3 +3,4 @@ python-dotenv==1.2.3
 PyYAML==6.0.3
 rank_bm25==0.2.2
 zhipuai==2.1.5.20250825
+siniffio
