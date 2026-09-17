@@ -1,0 +1,22 @@
+#Python 缓存
+__pyache__/
+*.py[cod]
+
+#虚拟环境
+venv/
+.venv/
+
+#环境变量
+.env
+
+#日志
+*.log
+agent.log
+
+#向量库
+chorma_db/
+
+#编辑器/系统文件
+.vscode/
+.idea/
+.DS_Store
