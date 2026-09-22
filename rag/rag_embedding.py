@@ -87,6 +87,7 @@ class RAGRetriever:
         :param use_rewrite: 是否启用查询重写（默认开启）
         :return: 匹配结果列表
         """
+        self.collection = self.chroma_client.get_or_create_collection(self.collection)
         # 查询重写
         if use_rewrite:
             search_query = rewrite_query(query)
