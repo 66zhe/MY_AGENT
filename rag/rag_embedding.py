@@ -20,7 +20,6 @@ load_dotenv()
 api_key = os.getenv("ZHIPUAI_API_KEY")
 client = ZhipuAI(api_key=api_key)
 
-
 def get_embedding(text):
     """
     使用智谱 AI 获取文本的 Embedding 向量
@@ -37,7 +36,6 @@ def get_embedding(text):
     except Exception as e:
         logger.error(f"获取向量失败: {e}")
         return None
-
 
 def rewrite_query(query, top_k=3):
     """
@@ -68,13 +66,11 @@ def rewrite_query(query, top_k=3):
         logger.warning(f"查询重写失败，使用原始查询: {e}")
         return query  # 降级策略：重写失败则用原查询
 
-
 class RAGRetriever:
     def __init__(self, collection_name="rag_collection", client=None):
-        self.chroma_client = client or get_chroma()     
+        self.chroma_client = client or get_chroma()
         self.collection_name = collection_name
 
-        
         # 确保集合存在
         if self.collection_name not in [c.name for c in self.chroma_client.list_collections()]:
             logger.error(f"获取集合 {self.collection_name} 失败: Collection does not exist")
@@ -124,10 +120,9 @@ class RAGRetriever:
             })
         return output
 
-
 if __name__ == "__main__":
     print("=" * 50)
-    print("💬 欢迎使用 RAG 检索系统（含查询重写）")
+    print("欢迎使用 RAG 检索系统（含查询重写）")
     print("=" * 50)
 
     try:
@@ -138,14 +133,14 @@ if __name__ == "__main__":
 
     while True:
         try:
-            query = input("\n🔎 请输入查询（quit 退出）：").strip()
+            query = input("\n请输入查询 (quit 退出) : ").strip()
             if not query:
                 continue
             if query.lower() in ("quit", "exit", "退出"):
-                print("👋 再见！")
+                print("再见！")
                 break
 
-            print(f"\n📄 查询：{query}")
+            print(f"\n查询: {query}")
             results = retriever.search(query, top_k=3, use_rewrite=True)
 
             for item in results:
@@ -154,5 +149,5 @@ if __name__ == "__main__":
                 print()
 
         except KeyboardInterrupt:
-            print("\n👋 再见！")
+            print("\n再见! ")
             break
