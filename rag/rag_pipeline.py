@@ -31,8 +31,8 @@ def rag_answer(question: str) -> str:
     :return: 大模型基于检索到的资料生成的回答
     """
 
-    chunks = _retriver.search(question, top_k=3, use_rewrite=True)
-
+    chunks = get_retriever().search(question, top_k=3, use_rewrite=True)
+    
     print("\n 检索到的参考资料: ")
     for item in chunks:
         print(f" Top{item['rank']} 相似度={item['score']:.4f} | 来源={item['source']}")
