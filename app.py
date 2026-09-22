@@ -45,7 +45,7 @@ st.markdown("""
   .stFileUploader > div {
     border: 2px dashed #2980b9;
     border-radius: 10px;
-    padding; 20px;
+    padding: 20px;  /* ✅ 冒号 */
   }
 </style>
 """, unsafe_allow_html=True)
@@ -132,9 +132,10 @@ with st.sidebar:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-for msg in st.session_state:
-    with st.chat_message(msg ["role"]):
-        st.write(msg ["content"])
+# ✅ 正确写法
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
 
 if prompt := st.chat_input("请输入你的问题, 例如: 量子计算是什么? "):
     with st.chat_message("user"):
