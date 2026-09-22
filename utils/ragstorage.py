@@ -3,7 +3,7 @@ import chromadb
 from chromadb.config import Settings
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CHROMA_PATH = "/tmp/chroma_db"
+CHROMA_PATH = os.path.expanduser("~/chroma_db")
 COLLECTION_NAME = "rag_collection"
 
 _client = None
