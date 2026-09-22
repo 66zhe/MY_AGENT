@@ -10,6 +10,7 @@ from zhipuai import ZhipuAI
 from dotenv import load_dotenv
 from utils.logger import get_logger
 from chunker import smart_chunker
+from utils.ragstorage import get_chroma
 
 # 初始化 logger
 logger = get_logger("RegVectorDB")
@@ -39,7 +40,7 @@ def main():
     db_path = os.path.join(root_dir, "chorma_db")
     logger.info(f"正在初始化 ChromaDB 数据库: {db_path}")
 
-    chroma_client = chromadb.PersistentClient(path=db_path)
+    chroma_client = get_chroma()
 
     collection_name = "rag_collection"
     # 如果已存在则删除重建（确保数据干净）

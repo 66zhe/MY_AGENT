@@ -5,8 +5,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from utils.logger import get_logger
 
-from rag_embedding import RAGRetriever
-from rag_generator import generate_answer
+from .rag_embedding import RAGRetriever
+from .rag_generator import generate_answer
 
 logger = get_logger("RAGPipeline")
 

@@ -10,6 +10,7 @@ from zhipuai import ZhipuAI
 from dotenv import load_dotenv
 
 from utils.logger import get_logger
+from utils.ragstorage import get_chroma
 
 # 获取 logger
 logger = get_logger("Retriever")
@@ -69,20 +70,11 @@ def rewrite_query(query, top_k=3):
 
 
 class RAGRetriever:
-    def __init__(self, collection_name="rag_collection"):
-        # 关键修复：数据库路径与 regvetor_db.py 完全一致
-        # regvetor 用的是 os.path.join(root_dir, "chorma_db")，这里对齐同一个目录名
-        current_dir = os.path.dirname(os.path.abspath(__file__))   # ...\rag
-        root_dir = os.path.dirname(current_dir)                    # D:\my_agent
-        self.db_path = os.path.join(root_dir, "chorma_db")         # 与入库同一个库
+    def __init__(self, collection_name="rag_collection", client=None):
+        self.chroma_client = client or get_chroma()     
         self.collection_name = collection_name
 
-        logger.info(f"正在连接 ChromaDB: {self.db_path}")
-        self.chroma_client = chromadb.PersistentClient(
-            path=self.db_path,
-            settings=Settings(anonymized_telemetry=False)
-        )
-
+        
         # 确保集合存在
         if self.collection_name not in [c.name for c in self.chroma_client.list_collections()]:
             logger.error(f"获取集合 {self.collection_name} 失败: Collection does not exist")

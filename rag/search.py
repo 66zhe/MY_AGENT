@@ -8,6 +8,7 @@ import chromadb
 from zhipuai import ZhipuAI
 from dotenv import load_dotenv
 from utils.logger import get_logger
+from utils.ragstorage import get_chroma
 
 # 初始化 logger
 logger = get_logger("Retriever")
@@ -31,7 +32,7 @@ def get_embedding(text):
 class Retriever:
     def __init__(self, db_path, collection_name="rag_collection"):
         logger.info(f"正在连接 ChromaDB: {db_path}")
-        self.client = chromadb.PersistentClient(path=db_path)
+        self.client = get_chroma()
         self.collection = self.client.get_collection(name=collection_name)
         self.count = self.collection.count()
         logger.info(f"Retriever 初始化完成，集合: {collection_name}，共 {self.count} 条")

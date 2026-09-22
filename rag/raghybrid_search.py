@@ -8,6 +8,7 @@ from zhipuai import ZhipuAI
 from dotenv import load_dotenv
 from utils.logger import get_logger
 from rank_bm25 import BM25Okapi
+from utils.ragstorage import get_chroma
 import re
 import math
 
@@ -40,10 +41,7 @@ class HybridRetriver:
         root_dir = os.path.dirname(current_dir)
         self.db_path = os.path.join(root_dir, "chorma_db")
 
-        self.chroma_client = chromadb.PersistentClient(
-            path=self.db_path,
-            settings=Settings(anonymized_telemetry=False)
-        )
+        chroma_client = get_chroma()
         self.collection = self.chroma_client.get_collection(name=collection_name)
 
         all_docs = self.collection.get()["documents"]
