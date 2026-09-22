@@ -11,18 +11,7 @@ from .rag_generator import generate_answer
 logger = get_logger("RAGPipeline")
 
 # 全局初始化一个检索器, 程序启动时连一次库即可, 避免每次提问都重连
-_retriver = None
-
-def get_retriever():
-    global _retriver
-    if _retriver is None:
-        from utils.ragstorage import get_chroma, COLLECTION_NAME
-        chroma = get_chroma()
-        collection_names = [c.name for c in chroma.list_collections()]
-        if COLLECTION_NAME not in collection_names:
-            chroma.create_collection(COLLECTION_NAME)
-        _retriver = RAGRetriever()
-    return _retriver
+retriver = RAGRetriever()
 
 def rag_answer(question: str) -> str:
     """
@@ -31,8 +20,8 @@ def rag_answer(question: str) -> str:
     :return: 大模型基于检索到的资料生成的回答
     """
 
-    chunks = get_retriever().search(question, top_k=3, use_rewrite=True)
-    
+    chunks = retriver.search(question, top_k=3, use_rewrite=True)
+
     print("\n 检索到的参考资料: ")
     for item in chunks:
         print(f" Top{item['rank']} 相似度={item['score']:.4f} | 来源={item['source']}")

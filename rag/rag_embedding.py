@@ -73,8 +73,8 @@ class RAGRetriever:
 
         # 确保集合存在
         if self.collection_name not in [c.name for c in self.chroma_client.list_collections()]:
-            logger.error(f"获取集合 {self.collection_name} 失败: Collection does not exist")
-            raise ValueError(f"集合 {self.collection_name} 不存在，请先运行 regvetor_db.py 入库")
+            logger.info(f"集合 {self.collection_name} 不存在，正在创建...")
+            self.chroma_client.create_collection(self.collection_name)
 
         self.collection = self.chroma_client.get_collection(name=self.collection_name)
         logger.info(f"Retriever 初始化完成, 集合: {self.collection_name}, 共 {self.collection.count()} 条")
