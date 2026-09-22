@@ -4,3 +4,4 @@ PyYAML==6.0.3
 rank_bm25==0.2.2
 zhipuai==2.1.5.20250825
 streamlit==1.64.0
+sniffio
