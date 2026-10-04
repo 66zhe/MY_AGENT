@@ -15,7 +15,7 @@ class WriterAgent:
              raise ValueError("WriterAgent 未获取到 API Key")
         
         self.client = ZhipuAI(api_key=api_key)
-        self.model = config.get('model', {}).get('name', "glm-4-flash")
+        self.model = config.get('llm', {}).get('name', "glm-4-flash")
         self.system_prompt = config.get('writer_prompt', "你是一个专业的科技专栏作家。")
         
         logger.info(f"WriterAgent 初始化完成，模型：{self.model}")

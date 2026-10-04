@@ -1,7 +1,9 @@
 import os
+import re
 import json
 import logging
 import inspect
+import time
 from typing import List, Dict, Any, Callable
 
 from zhipuai import ZhipuAI
@@ -26,7 +28,7 @@ class ChatAgent:
             raise ValueError("未找到环境变量 ZHIPUAI_API_KEY")
         
         self.client = ZhipuAI(api_key=api_key)
-        self.model = config.get('model', {}).get('name', "glm-4-flash")
+        self.model = config.get('llm', {}).get('name', "glm-4-flash")
         
         # 2. 初始化对话历史，并注入 System Prompt (人设)
         system_prompt_content = config.get('system_prompt', "你是一个有用的助手")
@@ -148,3 +150,96 @@ class ChatAgent:
         except Exception as e:
             logger.error(f"发生错误：{e}")
             return f"出错了：{str(e)}"
+
+    def react(self, user_input: str, max_steps: int = 5) -> str:
+        """
+        ReAct 版交互: 思考 -> 调用工具 -> 观察 -> 再思考, 循环直到模型给出最终文本。
+        :param max_steps: 最大循环次数, 防止死循环
+        """
+        self.messages.append({"role": "user", "content": user_input})
+        logger.info(f"收到用户输入: {user_input}")
+
+        # 新增: 收集本轮所有工具返回里的数字, 用于最终核对
+        tool_numbers = set()
+
+        try:
+            for step in range(max_steps):
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=self.messages,
+                    tools=self.tools_definition if self.tools_definition else None
+                )
+                message = response.choices[0].message
+
+                if message.tool_calls:
+                    logger.info(f"[第{step+1}步] 模型请求调用工具: {message.tool_calls}")
+                    self.messages.append(message.model_dump(exclude_none=True))
+                    for tool_call in message.tool_calls:
+                        func_name = tool_call.function.name
+                        func_args = json.loads(tool_call.function.arguments)
+                        logger.info(f"[第{step+1}步] 正在执行本地函数: {func_name}, 参数: {func_args}")
+                        if func_name in self.tools_map:
+                            result, err = call_tool_with_retry(self.tools_map[func_name], retries=2, **func_args)
+                            if err:
+                                func_result = degraded_message(func_name, err)
+                            else:
+                                func_result = result
+                        else:
+                            func_result = f"错误: 找不到函数 {func_name}"
+
+                        # 新增: 把工具原始返回打进日志, 并抽取其中的数字
+                        logger.info(f"[第{step+1}步] 工具原始返回: {func_result}")
+                        for num in re.findall(r'\d+(?:\.\d+)?', str(func_result)):
+                            tool_numbers.add(num)
+
+                        self.messages.append({
+                            "role": "tool",
+                            "content": str(func_result),
+                            "tool_call_id": tool_call.id
+                        })
+                else:
+                    final_reply = message.content
+                    self.messages.append({"role": "assistant", "content": final_reply})
+
+                    # 新增: 数值一致性粗校验, 只告警不改写
+                    if tool_numbers and final_reply:
+                        reply_numbers = set(re.findall(r'\d+(?:\.\d+)?', final_reply))
+                        # 最终回答里出现了工具没给过的数字, 疑似幻觉
+                        suspicious = reply_numbers - tool_numbers
+                        if suspicious:
+                            logger.warning(
+                                f"数值疑似漂移: 工具返回数字={sorted(tool_numbers)}, "
+                                f"回答中多出的数字={sorted(suspicious)}"
+                            )
+
+                    logger.info(f"Agent 最终回复 (共用了 {step+1} 步) : \n{final_reply}")
+                    return final_reply
+
+            return "已达到最大循环次数, 未能得出最终回答。"
+        except Exception as e:
+            logger.error(f"发生错误: {e}")
+            return f"出错了: {str(e)}"
+
+def safe_call(func, **kwargs):
+    """对应实操1: 给单个工具调用套 try-except。"""
+    try:
+        return func(**kwargs), None
+    except Exception as e:
+        return None, f"{func.__name__} 调用失败: {e}" 
+
+def call_tool_with_retry(func, retries=2, backoff=1, **kwargs):
+    """对应实操2: 失败自动重试 1-2 次。返回 (result, error)。"""
+    last_err = None
+    for attempt in range(retries + 1):
+        try:
+            return func(**kwargs), None
+        except Exception as e:
+            last_err = f"第{attempt}次失败: {e}"
+            print(f"[重试] {func.__name__} {last_err}")
+            if attempt < retries:
+                time.sleep(backoff * (attempt + 1))
+    return None, f"{func.__name__} 已重试{retries+1}次仍失败, 放弃"
+
+def degraded_message(func_name, err):
+    """对应实操3: 工具不可用时的降级话术 (不抛, 只返回给用户的提示) 。"""
+    return f" 【降级】 暂时无法使用{func_name} ({err}) , 这一步先跳过。"
