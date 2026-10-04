@@ -6,6 +6,10 @@
 ](https://streamlit.io)
 ](https://open.bigmodel.cn)
 
+
+# 应用展示：
+https://myagent-qfkvfxftczcl5zcfesbrhs.streamlit.app/
+
 ---
 
 ## 项目亮点
@@ -189,5 +193,5 @@ logging:
   level: "INFO"
 License
 MIT
-联系方式
+联系方式     2499257919@qq.com
 如有问题或建议，欢迎提 Issue 或联系作者。
