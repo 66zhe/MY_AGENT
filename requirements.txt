@@ -1,7 +1,11 @@
+# MY_AGENT 直接依赖清单（D1 整理）
+# 用途：pip install -r requirements.txt 一键重建运行环境
+# 策略：只锁定「直接依赖」+ 精确版本，传递依赖（numpy/onnxruntime/langchain-core 等）交给 pip 解析
+# 需要逐字节完全复现时，用 requirements.lock（pip freeze 全量锁定）
 chromadb==1.5.9
+zhipuai==2.1.5.20250825
 python-dotenv==1.2.3
 PyYAML==6.0.3
-rank_bm25==0.2.2
-zhipuai==2.1.5.20250825
+rank-bm25==0.2.2
 streamlit==1.64.0
-sniffio
+langgraph==1.2.12
