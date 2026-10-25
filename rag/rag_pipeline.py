@@ -22,19 +22,19 @@ def rag_answer(question: str) -> str:
 
     chunks = retriver.search(question, top_k=3, use_rewrite=True)
 
-    print("\n 检索到的参考资料: ")
+    logger.info("\n 检索到的参考资料: ")
     for item in chunks:
-        print(f" Top{item['rank']} 相似度={item['score']:.4f} | 来源={item['source']}")
-        print(f"  {item['content'] [:80]}...")
+        logger.info(f" Top{item['rank']} 相似度={item['score']:.4f} | 来源={item['source']}")
+        logger.info(f"  {item['content'] [:80]}...")
 
     answer = generate_answer(question, chunks)
     return answer
 
 def main():
-    print("=" * 60)
-    print("🤖 RAG 全流程问答系统已就绪 (Day35: 检索 + 生成 已打通)")
-    print("💡 提示: 请输入与 sample.txt 相关的问题, 输入 quit 退出")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("🤖 RAG 全流程问答系统已就绪 (Day35: 检索 + 生成 已打通)")
+    logger.info("💡 提示: 请输入与 sample.txt 相关的问题, 输入 quit 退出")
+    logger.info("=" * 60)
 
     while True:
         try:
@@ -42,18 +42,18 @@ def main():
             if not question:
                 continue
             if question.lower() in ["quit", "exit", "退出", "q"]:
-                print("👋 再见! ")
+                logger.info("👋 再见! ")
                 break
 
             answer = rag_answer(question)
-            print(f"\n 回答: \n{answer}")
+            logger.info(f"\n 回答: \n{answer}")
 
         except KeyboardInterrupt:
-            print("\n👋 再见! ")
+            logger.info("\n👋 再见! ")
             break
         except Exception as e:
             logger.error(f"运行出错: {e}")
-            print(f"出错了: {e}")
+            logger.error(f"出错了: {e}")
 
 if __name__ == "__main__":
     main()

@@ -235,7 +235,7 @@ def call_tool_with_retry(func, retries=2, backoff=1, **kwargs):
             return func(**kwargs), None
         except Exception as e:
             last_err = f"第{attempt}次失败: {e}"
-            print(f"[重试] {func.__name__} {last_err}")
+            logger.warning(f"[重试] {func.__name__} {last_err}")
             if attempt < retries:
                 time.sleep(backoff * (attempt + 1))
     return None, f"{func.__name__} 已重试{retries+1}次仍失败, 放弃"
