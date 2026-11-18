@@ -41,7 +41,7 @@ def generate_answer(question: str, content_chunks: list) -> str:
     )
 
     messages = [
-        {"role": "system", "context": "你是一个严谨的问答助手, 只根据用户提供的参考资料回答问题。"},
+        {"role": "system", "content": "你是一个严谨的问答助手, 只根据用户提供的参考资料回答问题。"},
         {"role": "user", "content": prompt},
     ]
 

@@ -1,5 +1,5 @@
 #Python 缓存
-__pyache__/
+__pycache__/
 *.py[cod]
 
 #虚拟环境
